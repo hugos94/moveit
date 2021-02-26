@@ -1,41 +1,20 @@
-import { useContext, useEffect, useState } from 'react';
-import { ChallengesContext } from '../context/ChallengesContext';
+import { useContext } from 'react';
+import { MdClose, MdPlayArrow, MdCheckCircle } from "react-icons/md";
+import { CountdownContext } from '../context/CountdownContext';
 import styles from '../styles/components/Countdown.module.css';
 
-let countdownTimeout: NodeJS.Timeout;
-const initialTime = 0.05 * 60;
-
 export function Countdown() {
-  const { startNewChallenge } = useContext(ChallengesContext);
-  const [time, setTime] = useState(initialTime);
-  const [isActive, setIsActive] = useState(false);
-  const [hasFinished, setHasFinished] = useState(false);
-
-  const minutes = Math.floor(time / 60);
-  const seconds = time % 60;
+  const {
+    hasFinished,
+    isActive,
+    minutes,
+    resetCountdown,
+    seconds,
+    startCountdown,
+  } = useContext(CountdownContext);
 
   const [minuteLeft, minuteRigth] = String(minutes).padStart(2, '0').split('');
   const [secondLeft, secondRigth] = String(seconds).padStart(2, '0').split('');
-
-  function startCountdown() {
-    setIsActive(true);
-  }
-
-  function resetCountdown() {
-    clearTimeout(countdownTimeout);
-    setIsActive(false);
-    setTime(initialTime);
-  }
-
-  useEffect(() => {
-    if (isActive && time > 0) {
-      countdownTimeout = setTimeout(() => setTime(time - 1), 1000);
-    } else if (isActive && time === 0) {
-      setHasFinished(true);
-      setIsActive(false);
-      startNewChallenge();
-    }
-  }, [isActive, time])
 
   return (
     <div>
@@ -52,8 +31,9 @@ export function Countdown() {
       </div>
 
       { hasFinished ? (
-        <button className={styles.countdownButton} disabled>
+        <button className={`${styles.countdownButton} ${styles.countdownButtonFinished}`} disabled>
           Ciclo Encerrado
+          <MdCheckCircle className={styles.countdownCheckCircleIcon} />
         </button>
       ) : (
           <>
@@ -64,7 +44,7 @@ export function Countdown() {
                   onClick={resetCountdown}
                   type="button"
                 >
-                  Abandonar ciclo
+                  Abandonar ciclo <MdClose />
                 </button>
               ) : (
                   <button
@@ -72,7 +52,7 @@ export function Countdown() {
                     onClick={startCountdown}
                     type="button"
                   >
-                    Iniciar um ciclo
+                    Iniciar um ciclo <MdPlayArrow />
                   </button>
                 )
             }
